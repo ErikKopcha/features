@@ -1,0 +1,45 @@
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+.eyes {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid #000000;
+  float: left;
+}
+
+.eye {
+  position: absolute;
+  left: 70px;
+  bottom: 35px;
+  width: 30px;
+  height: 30px;
+  background-color: #000000;
+  border-radius: 50%;
+}
+
+.eyes-2 {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid #000000;
+  float: left;
+}
+
+.eye-2 {
+  position: absolute;
+  left: 70px;
+  bottom: 35px;
+  width: 30px;
+  height: 30px;
+  background-color: #000000;
+  border-radius: 50%;
+}

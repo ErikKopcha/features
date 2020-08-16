@@ -1,0 +1,26 @@
+.main__inner {
+  @include inner;
+  height: 100vh;
+  .main__wrapper-img {
+    display: flex;
+    align-items: center;
+    margin: 0 0 20px 0;
+    padding: 200px 0 0 0;
+
+    img {
+      border: 3px solid transparent;
+
+      &:not(:last-child) {
+        margin: 0 20px 0 0;
+      }
+    }
+
+    img.active {
+      border: 3px solid #26baff;
+    }
+  }
+
+  .button {
+    @include button-style;
+  }
+}

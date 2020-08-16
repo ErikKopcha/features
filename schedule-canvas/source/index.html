@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Canvas chart</title>
+    <link href="css/style.min.css" rel="stylesheet">
+  </head>
+  <body>
+
+    <section class="chart">
+      <h1 class="chart__title">Популярность языков программирования</h1>
+
+      <form class="chart__data" action="#" method="POST">
+        <div class="chart__input-group">
+          <label class="chart__label" for="javascript">JavaScript</label>
+          <input class="chart__input input-field" type="number" name="javascript" id="javascript" min="0" max="100" required="">
+          <span>%</span>
+        </div>
+
+        <div class="chart__input-group">
+          <label class="chart__label" for="php">PHP</label>
+          <input class="chart__input input-field" type="number" name="php" id="php" min="0" max="100" required="">
+          <span>%</span>
+        </div>
+
+        <div class="chart__input-group">
+          <label class="chart__label" for="python">Python</label>
+          <input class="chart__input input-field" type="number" name="python" id="python" min="0" max="100" required="">
+          <span>%</span>
+        </div>
+
+        <input class="chart__submit-button input-field" type="submit" value="Показать график">
+      </form>
+
+      <div class="chart__canvas-wrapper">
+        <canvas id="canvas" width="500" height="250">Браузер не поддерживает Canvas</canvas>
+      </div>
+    </section>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
