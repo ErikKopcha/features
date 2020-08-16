@@ -1,0 +1,104 @@
+.box,
+pre {
+  width: 100%;
+  max-width: 412px;
+  border-radius: 8px;
+}
+.box {
+  background: #fff;
+  border: 2px solid #D1D6EE;
+  position: relative;
+  margin-bottom: 16px;
+}
+.box .scroll {
+  height: 200px;
+  padding: 20px;
+  overflow: auto;
+}
+.box .scroll > div {
+  height: 300%;
+}
+.box .scroll > div .target {
+  margin-top: 100%;
+  width: 80px;
+  height: 80px;
+  line-height: 80px;
+  text-align: center;
+  background: #275EFE;
+  color: #fff;
+  border-radius: 6px;
+}
+.box span {
+  display: block;
+  position: absolute;
+  text-align: center;
+  color: #646B8C;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 14px;
+  padding: 8px 0;
+}
+.box span strong {
+  font-weight: bold;
+  color: #2B3044;
+}
+pre {
+  background: #1A1E32;
+  padding: 20px;
+}
+pre code {
+  font-family: 'Fira Mono';
+  color: #BBC1E1;
+  line-height: 1.4;
+  font-size: 12px;
+}
+pre code .token.function {
+  color: #5C86FF;
+}
+pre code .token.string {
+  color: #CB7DD0;
+}
+pre code .token.parameter {
+  color: #C4DDB2;
+}
+pre code .token.class-name {
+  color: #E2C484;
+}
+pre code .token.keyword {
+  color: #F9FFB1;
+}
+pre code .token.comment {
+  opacity: .6;
+}
+body {
+  font-family: 'Roboto', Arial;
+  min-height: 100vh;
+  background: #F6F8FF;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+body .twitter {
+  position: fixed;
+  display: block;
+  right: 14px;
+  bottom: 14px;
+}
+body .twitter svg {
+  width: 32px;
+  height: 32px;
+  fill: #1da1f2;
+}
+html {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+* {
+  box-sizing: inherit;
+}
+*:before,
+*:after {
+  box-sizing: inherit;
+}

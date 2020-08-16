@@ -1,0 +1,29 @@
+.main__inner {
+  @include inner;
+}
+
+.cart {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  max-width: 300px;
+  margin: 0 auto;
+
+  &:first-of-type {
+    margin: 0 auto 20px auto;
+  }
+
+  .button {
+    @include button-style;
+    background-color: rgb(255, 173, 80);
+
+    &:first-of-type {
+      margin: 10px 0;
+      background-color: rgb(117, 161, 255);
+
+      &:hover {
+        background-color: rgb(59, 121, 255);
+      }
+    }
+  }
+}

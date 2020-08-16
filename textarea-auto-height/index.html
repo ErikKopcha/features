@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scroll</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <textarea rows="1">Here is a very long value for testing auto height</textarea>
+
+  <pre><code class="language-js">document.querySelectorAll('textarea').forEach(el => {
+    el.style.height = el.setAttribute('style', 'height: ' + el.scrollHeight + 'px');
+    el.classList.add('auto');
+    el.addEventListener('input', e => {
+      el.style.height = 'auto';
+      el.style.height = (el.scrollHeight) + 'px';
+    });
+  });</code></pre>
+
+  <script src="index.js"></script>
+</body>
+
+</html>

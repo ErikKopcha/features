@@ -1,0 +1,154 @@
+class customSwiper {
+    constructor(size, multiply) {
+        this.size = size;
+        this.multiply = multiply;
+        this.__init();
+    }
+    __init() {
+        this.swiper(this.size, this.multiply);
+    }
+
+    swiper(size, multiply) {
+        var slider = document.getElementById('slider_wrap'),
+            sliderPrev = document.querySelector('.arrow-left'),
+            sliderNext = document.querySelector('.arrow-right');
+        function slide(items, prev, next, size, multiply) {
+            var posX1 = 0,
+                posX2 = 0,
+                posInitial,
+                posFinal,
+                slides = items.querySelectorAll('.slider-item'),
+                fixBox = document.getElementById('photo'),
+                slidesLength = slides.length,
+                slideSize = size,
+                threshold = slideSize / 2,
+                firstSlide = slides[0],
+                secondSlide = slides[1],
+                thirdSlide = slides[2],
+                lastSlide = slides[slidesLength - 1],
+                cloneFirst = firstSlide.cloneNode(true),
+                cloneLast = lastSlide.cloneNode(true),
+                cloneSecond = secondSlide.cloneNode(true),
+                cloneThird = thirdSlide.cloneNode(true),
+                index = 0,
+                allowShift = true,
+                first = true;
+
+            items.style.left = `-${slideSize + 1}px`;
+
+            // Clone first, second and last slide
+            items.appendChild(cloneFirst);
+            items.prepend(cloneLast);
+
+            if (multiply) {
+                items.appendChild(cloneSecond);
+                items.appendChild(cloneThird);
+                //items.appendChild(cloneSecond);
+                //items.appendChild(cloneThird);
+                //items.insertBefore(cloneLast, secondSlide);
+                //items.insertBefore(cloneSecond, cloneThird);
+            }
+
+            // Mouse events
+            items.addEventListener('mousedown', dragStart);
+
+            // Touch events
+            items.addEventListener('touchstart', dragStart);
+            items.addEventListener('touchend', dragEnd);
+            items.addEventListener('touchmove', dragAction);
+
+            // Click events
+            prev.addEventListener('click', () => {
+                shiftSlide(-1);
+            });
+            next.addEventListener('click', () => {
+                shiftSlide(1);
+                
+            });
+
+            // Transition events
+            items.addEventListener('transitionend', checkIndex);
+
+            function dragStart(e) {
+                e = e || window.event;
+                e.preventDefault();
+                posInitial = items.offsetLeft;
+
+                if (e.type == 'touchstart') {
+                    posX1 = e.touches[0].clientX;
+                } else {
+                    posX1 = e.clientX;
+                    document.onmouseup = dragEnd;
+                    document.onmousemove = dragAction;
+                }
+            }
+
+            function dragAction(e) {
+                e = e || window.event;
+                if (e.type == 'touchmove') {
+                    posX2 = posX1 - e.touches[0].clientX;
+                    posX1 = e.touches[0].clientX;
+                } else {
+                    posX2 = posX1 - e.clientX;
+                    posX1 = e.clientX;
+                }
+                items.style.left = (items.offsetLeft - posX2) + "px";
+            }
+
+            function dragEnd(e) {
+                items.classList.add('shifting');
+                posFinal = items.offsetLeft;
+                if (posFinal - posInitial < -threshold) {
+                    shiftSlide(1, 'drag');
+                } else if (posFinal - posInitial > threshold) {
+                    shiftSlide(-1, 'drag');
+                } else {
+                    items.style.left = (posInitial) + "px";
+                    console.log(items);
+                }
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+
+            function shiftSlide(dir, action) {
+                items.classList.add('shifting');
+
+                if (allowShift) {
+                    if (!action && typeof action == 'undefined') {
+                        posInitial = items.offsetLeft;
+                    }
+                    if (dir == 1) {
+                        items.style.left = (posInitial - slideSize) + "px";
+                        index++;
+                    } else if (dir == -1) {
+                        items.style.left = (posInitial + slideSize) + "px";
+                        index--;
+                    }
+                }
+                if (first && !multiply) {
+                    fixBox.style.width = slideSize - 2 + 'px';
+                    first = false;
+                }
+                allowShift = false;
+            }
+
+            function checkIndex() {
+                items.classList.remove('shifting');
+
+                if (index == -1) {
+                    items.style.left = -(slidesLength * slideSize) + "px";
+                    index = slidesLength - 1;
+                }
+
+                if (index == slidesLength) {
+                    items.style.left = -(1 * slideSize) + "px";
+                    index = 0;
+                }
+
+                allowShift = true;
+            }
+        }
+
+        slide(slider, sliderPrev, sliderNext, size, multiply);
+    }
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In Vuewport</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="box">
+    <div class="scroll">
+      <div>
+        <div class="target">Target</div>
+      </div>
+    </div>
+    <span>In viewport: <strong>false</strong></span>
+  </div>
+
+  <pre><code class="language-js">
+    function inViewport(elem, callback, options = {}) {
+      return new IntersectionObserver(entries => {
+        entries.forEach(entry => callback(entry));
+      }, options).observe(document.querySelector(elem));
+    }
+
+    inViewport('.target', element => {
+      //element.isIntersecting (bool) true/false
+    }, {
+      root: document.querySelector('.scroll')
+    })
+  </code></pre>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
