@@ -33,8 +33,8 @@ function slide(wrapper, items, prev, next) {
   items.addEventListener('touchmove', dragAction);
   
   // Click events
-  prev.addEventListener('click', function () { shiftSlide(-1) });
-  next.addEventListener('click', function () { shiftSlide(1) });
+  prev.addEventListener('click', function () { shiftSlide(-1);});
+  next.addEventListener('click', function () { shiftSlide(1);});
   
   // Transition events
   items.addEventListener('transitionend', checkIndex);
