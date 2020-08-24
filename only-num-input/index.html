@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Only num for input</title>
+</head>
+<body>
+  <label><input id="input-num" type="text"></label>
+  
+  <script>
+
+    // Алгоритм проверки будет такой
+    // При нажатии клавиши на клавиатуре ( событие .keydown() ) будем получать keyCode (возвращает код нажатой клавиши) и анализировать его;
+    // Для цифр основной клавиатуры keyCode принимает значения от 48 (клавиша 0) до 57 (клавиша 9);
+    // Для цифр дополнительной клавиатуры ( Num-клавиатуры ) keyCode принимает значения от 96 (клавиша 0) до 105 (клавиша 9);
+
+    // Так же разрешим:
+    // удалять символы ( клавиша Del ) keyCode == 46;
+    // переключаться клавишей Tab между полями keyCode == 9;
+    // нажимать Backspace keyCode == 8;
+    // нажимать Esc keyCode == 27;
+
+    // выделять текст сочетанием Ctrl + A — вот тут клавиша A имеет код keyCode == 65, а событие зажатого Ctrl ctrlKey должно быть строго истина, т.е. получаем условие — ( event.keyCode == 65 && event.ctrlKey === true );
+    
+    // разрешим клавишу Home keyCode == 36;
+    // разрешим клавишу End keyCode == 35;
+    // разрешим клавишу влево keyCode == 37;
+    // разрешим клавишу вправо keyCode == 39;
+
+    // Последние четыре требования можно объединить в одно — ( event.keyCode >= 35 && event.keyCode <= 39 ), правда в этом случае мы разрешаем еще нажатие клавиши вверх keyCode == 38, но, думаю это не критично, а код получится красивее.
+
+    class ValidateInput {
+      constructor(inputId) {
+        this.input = document.getElementById(inputId);
+
+        if (this.inputId == null) {
+          console.error(`settings CashControl: element ${inputId} is not found`);
+        }
+
+        this.init();
+      }
+
+      init() {
+        this.validateInput();
+      }
+
+      validateInput() {
+        this.input.addEventListener('keydown', (event) => {
+          // Разрешаем: backspace, delete, tab и escape
+          if (event.keyCode == 46 || event.keyCode == 8 || event.keyCode == 9 || event.keyCode == 27 ||
+            // Разрешаем: Ctrl+A
+            (event.keyCode == 65 && event.ctrlKey === true) ||
+            // Разрешаем: home, end, влево, вправо
+            (event.keyCode >= 35 && event.keyCode <= 39)) {
+            return;
+          } else {
+            // Запрещаем все, кроме цифр на основной клавиатуре, а так же Num-клавиатуре
+            if ((event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105 )) {
+              event.preventDefault();
+            }
+          }
+        });
+      }
+    }
+
+    let validateInput = new ValidateInput('input-num');
+  </script>
+</body>
+</html>
