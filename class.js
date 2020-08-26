@@ -1,9 +1,9 @@
-class cashControl {
+class Name {
   constructor(baseContainerId) {
     this.baseContainer = document.getElementById(baseContainerId);
 
     if (this.baseContainer == null) {
-      console.error(`settings CashControl: element ${baseContainerId} is not found`);
+      console.error(`settings Name: element ${baseContainerId} is not found`);
     } else {
       while (this.baseContainer.firstChild) {
         this.baseContainer.removeChild(this.baseContainer.firstChild);
@@ -14,18 +14,15 @@ class cashControl {
   }
 
   __init() {
-    let leftMenu = document.createElement('div');
-    leftMenu.classList.add('col-lg-3', 'col-md-3', 'col-sm-12');
-
+    this.eftMenu = document.createElement('div');
     this.rightContainer = document.createElement('div');
-    this.rightContainer.classList.add('col-lg-9', 'col-md-9', 'col-sm-12');
 
     this.__buildLeftMenu(leftMenu);
 
     this.baseContainer.appendChild(leftMenu);
     this.baseContainer.appendChild(this.rightContainer);
 
-    this.depRates = new departmentRates(this.rightContainer, this);
+    this.elem = new departments(this.rightContainer, this);
   }
 
   __buildLeftMenu(container) {
