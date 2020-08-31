@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Range Slider with Text</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <main>
+    <div class="fill-area"></div>
+    <label id="range-value" for="range">0</label>
+    <input id="range" type="range" name="range" value="0" min="0" max="100" onmousemove="handleMouseMove(this.value)"
+      onchange="handleMouseMove(this.value)" />
+  </main>
+
+  <script src="range.js"></script>
+</body>
+
+</html>
