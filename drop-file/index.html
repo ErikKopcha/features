@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    //////****************приклад використання***********
+    //////var ddd = new DropFile('photo', {
+    //////    caption: 'Клікніть або перетяніть сюди фотографію',
+    //////    maxCount: 10,
+    //////    accept: 'image/x-png,image/gif,image/jpeg,image/png',
+    //////    upload: {
+    //////        url: '',
+    //////        onSuccess: function () {
+    //////            alert('Завантежено усі файли');
+    //////        },
+    //////        onError: function () { },
+    //////        uploadAs: 'base64' // blob
+    //////    }
+    //////});
+    //////***********************************************
+
+    class DropFile {
+      ////options:
+      // {
+      //    caption: 'Клікніть або перетяніть сюди фотографію',
+      //        maxCount: 1,
+      //            accept: 'image/x-png,image/gif,image/jpeg,image/png',
+      //                upload: {
+      //        url: '',
+      //        onSuccess: function () { },
+      //        onError: function () { },
+      //        uploadAs: 'base64' / blob,
+      //        isolatedDownload:true|false - дозвіл на завантаження файлів прямо з контролу
+      //        
+      //    }
+      //}
+      constructor(dropAreaID, options) {
+
+        if (typeof options == 'undefined') {
+          options = {
+            caption: '<i class="fas fa-paperclip"></i> Клікніть або перетяніть сюди фотографію чи файл',
+            maxCount: 1,
+            //accept: 'application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint,text/plain, application/pdf, image/*'
+            accept: '',
+            isolatedDownload: true
+          }
+        }
+
+
+
+        this.initialOptions = options;
+        this.maxCount = 1;
+
+        if (typeof this.initialOptions.maxCount != 'undefined') {
+          this.maxCount = this.initialOptions.maxCount;
+        }
+        //разрешение на загрузку прямо из контрола
+        this.isolatedDownload = true;
+
+        if (typeof this.initialOptions.isolatedDownload !== 'undefined') {
+          this.isolatedDownload = this.initialOptions.isolatedDownload;
+        }
+
+
+        this.files = [];
+
+        this.dropArea = document.getElementById(dropAreaID);
+
+        if (this.dropArea == null) {
+          throw new Error('Container ' + dropAreaID + ' is not found in DOM');
+        }
+
+        while (this.dropArea.firstChild) {
+          this.dropArea.removeChild(this.dropArea.firstChild);
+        }
+
+        this.dropArea.style.cursor = 'pointer';
+
+        if (typeof this.initialOptions.caption === 'undefined') {
+          this.initialOptions.caption =
+            '<i class="fas fa-paperclip"></i> Клікніть або перетяніть сюди фотографію чи файл';
+        }
+
+        this.dropArea.innerHTML =
+          `<div><span><i class="fas fa-paperclip"></i> ${this.initialOptions.caption}</span><br><span class="fs-xsm">(Максимальний розмір одного файлу 30Мб)</span></div>`;
+
+        this.filesViewContainer = document.createElement('div');
+        this.filesViewContainer.id = `${dropAreaID}-filesContainer`;
+        this.dropArea.appendChild(this.filesViewContainer);
+
+        this.fileSelect = document.createElement('input');
+        this.fileSelect.type = 'file';
+        this.fileSelect.style.display = 'none';
+        this.fileSelect.addEventListener('change', function (e) {
+          if (e.target.files != null || typeof e.target.files !== 'undefined') {
+            for (let file of e.target.files) {
+              self.__addFile(file);
+            }
+          }
+          //console.log(files);
+        });
+
+        if (typeof this.initialOptions.accept === 'undefined') {
+          //this.initialOptions.accept = 'application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint,text/plain, application/pdf, image/*,*.doc';
+          this.initialOptions.accept = '';
+        }
+
+        this.fileSelect.setAttribute('accept', this.initialOptions.accept);
+
+        this.dropArea.appendChild(this.fileSelect);
+
+
+        this.dropArea.addEventListener('click', function () {
+          self.fileSelect.click();
+        });
+
+        this.maxCountAlertIsShow = false;
+
+        var self = this;
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+          //this.dropArea.addEventListener(eventName, self.preventDefaults, false)
+          document.body.addEventListener(eventName, self.preventDefaults, false)
+        })
+
+        // Highlight drop area when item is dragged over it
+        //['dragenter', 'dragover'].forEach(eventName => {
+        //        this.dropArea.addEventListener(eventName, self.highlight, false)
+        //    })
+
+        //['dragleave', 'drop'].forEach(eventName => {
+        //    this.dropArea.addEventListener(eventName, self.unhighlight, false)
+        //})
+
+        // Handle dropped files
+        this.dropArea.addEventListener('drop', function (e) {
+          self.handleDrop(e, self);
+        }, false);
+
+        this.uploadProcess = false;
+        this.uploadOnSuccess = null;
+        this.uploadOnError = null;
+        this.uploadUrl = null;
+        this.uploadAs = null;
+        this.uploadBtn = null;
+
+        if (typeof options.upload !== 'undefined') {
+          //        url: '',
+          //        onSuccess: function () { },
+          //        onError: function () { },
+          //        uploadAs: 'base64' / blob
+
+          var uploadNormalSettings = true;
+
+          this.uploadProcess = true;
+          if (typeof options.upload.onSuccess == 'function') {
+            this.uploadOnSuccess = options.upload.onSuccess;
+          } else {
+            uploadNormalSettings = false;
+          }
+
+          if (typeof options.upload.onError == 'function') {
+            this.uploadOnError = options.upload.onError;
+          }
+
+          if (typeof options.upload.url === 'undefined') {
+            uploadNormalSettings = false;
+          } else {
+            this.uploadUrl = options.upload.url;
+          }
+
+          if (typeof options.upload.uploadAs === 'undefined') {
+            uploadNormalSettings = false;
+          } else {
+            this.uploadAs = options.upload.uploadAs;
+          }
+
+          if (uploadNormalSettings) {
+            self.__buildUploadConponent();
+          }
+
+        }
+      }
+      //будуємо візуальний компонент 
+      __buildUploadConponent() {
+        var self = this;
+        var div = document.createElement('div');
+        div.classList.add('text-center');
+
+        if (this.isolatedDownload) {
+          var button = document.createElement('button');
+          button.classList.add('btn');
+          button.classList.add('btn-success');
+          button.classList.add('m-1');
+          button.innerHTML = 'Завантажити файли';
+          div.appendChild(document.createElement('br'));
+
+          this.uploadBtn = button;
+
+          div.appendChild(this.uploadBtn);
+          this.dropArea.appendChild(div);
+
+          if (this.FilesToUpload.length == 0) {
+            this.uploadBtn.style.display = 'none';
+          }
+
+          this.uploadBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (self.files.length != 0) {
+              //self.__uplodaFileToUrl();
+              self.__uploadFileAsBlob();
+            }
+          });
+        }
+      }
+      //беремо наступний файл для завантаження
+      __getNextFileToUpload() {
+
+        var filesToUpload = this.FilesToUpload;
+
+        for (let file of filesToUpload) {
+          if (file.uploadStatus == 'new') {
+            this.___changeFileUploadStatus(file.id, 'process');
+            return file;
+          }
+        }
+
+        return null;
+      }
+      ///Змінюємо статус завантаження файлу
+      ___changeFileUploadStatus(fileId, status) {
+        for (let i = 0; i < this.files.length; i++) {
+          if (this.files[i].id === fileId) {
+            this.files[i].uploadStatus = status;
+            return;
+          }
+        }
+      }
+
+      //будуємо Base64 з файлу
+      __getBase64(file, onSuccess, onError) {
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+          if (typeof onSuccess === 'function') {
+            onSuccess(reader.result);
+          }
+        };
+
+        reader.onerror = function (error) {
+          if (typeof onError === 'function') {
+            console.log('__getBase64 error: ', error);
+          }
+        };
+      }
+
+      __uploadFileAsBlob() {
+        var self = this;
+
+        self.dropArea.classList.add('disabledForm');
+
+        var file_ = self.__getNextFileToUpload();
+        if (file_ == null) {
+          self.dropArea.classList.remove('disabledForm');
+          self.__renderFilesList();
+          self.uploadOnSuccess();
+          return;
+        }
+
+        var htmlContainer = document.getElementById(self.dropArea.id + '-file-' + file_.id);
+        if (htmlContainer != null) {
+          htmlContainer.style.opacity = .2;
+        }
+
+
+        const formData = new FormData();
+        formData.append('file', file_.file);
+        formData.append('comment', file_.comment);
+        formData.append('folderId', 1);
+        formData.append('isPublic', true);
+
+        this.xhr = new XMLHttpRequest();
+        this.xhr.arguments = {
+          file: this
+        };
+        this.xhr.responseType = 'json';
+        this.xhr.onerror = function (e) {
+          console.error(this.xhr.statusText);
+        };
+        this.xhr.upload.onprogress = (e) => {
+          console.log(e.loaded, e.total);
+          //this.progress(e.loaded, e.total);
+        };
+
+        this.xhr.onloadend = function () {
+
+          if (this.status == 200 && this.response.statusCode === 200 && this.response.data) {
+            htmlContainer.remove();
+            self.__removeByName(file_.file.name);
+            self.__uploadFileAsBlob();
+            self.dropArea.classList.remove('disabledForm');
+          } else {
+            //self.__removeByName(file_.file.name);
+            file_.uploadStatus == 'error';
+            self.__uploadFileAsBlob();
+            if (typeof response !== 'undefined' && response !== null) {
+              alert(JSON.stringify(response));
+            }
+            self.dropArea.classList.remove('disabledForm');
+          }
+
+        };
+        this.xhr.open('POST', this.uploadUrl);
+        this.xhr.send(formData);
+      }
+
+
+      //******нашаштування DragAndDrop***********//
+      preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      highlight(e) {
+        dropArea.classList.add('highlight');
+      }
+
+      unhighlight(e) {
+        dropArea.classList.remove('active');
+      }
+
+      handleDrop(e, self) {
+        var dt = e.dataTransfer
+        var files = dt.files
+        for (let file of files) {
+          self.__addFile(file);
+        }
+      }
+      //*****************************************//
+
+      //повідомлення про максимально дозволену ксть файлів
+      __addFile_showMaxCountAlert() {
+
+        if (!this.maxCountAlertIsShow) {
+          this.maxCountAlertIsShow = true;
+          const templite =
+            `<strong class="text-capitalize">Увага!</strong>
+            <p>Для цієї форми, максимально допустима (необхідна)<br>кількість файлів
+            рівна <strong>${this.maxCount}</strong></p>
+            <p>Ви не можете додати більшу кількість файлів</p>`;
+
+          var alertInfo = document.createElement('div');
+          alertInfo.classList.add('alert');
+          alertInfo.classList.add('alert-danger');
+          alertInfo.setAttribute('role', 'alert');
+          alertInfo.innerHTML = templite;
+
+          this.dropArea.appendChild(alertInfo);
+          var self = this;
+          window.setTimeout(function () {
+            self.maxCountAlertIsShow = false;
+            alertInfo.remove();
+          }, 4000);
+        }
+      }
+      //додаємо файл
+      __addFile(file) {
+
+        if (!this.__canAddMore()) {
+          return;
+        }
+
+        var self = this;
+        if (self.initialOptions.accept.length > 2) {
+          if (self.initialOptions.accept.split(',').indexOf(file.type) < 0) {
+            return;
+          }
+        }
+        if (((file.size / 1024) / 1024) > 40) {
+          alert('Недопустимий розмір файлу. Максимальний розмір одного файлу 30Мб');
+          return;
+        }
+        if (!self.isExist(file.name)) {
+          self.files.push({
+            uploadStatus: 'new',
+            file: file,
+            id: file.name.hashCode(),
+            base64: '',
+            comment: ''
+          });
+        }
+
+        self.__renderFilesList();
+      }
+      //перевіряємо чи можна додати ще один файл
+      __canAddMore() {
+        if (this.files.length >= this.maxCount) {
+          this.__addFile_showMaxCountAlert();
+          return false;
+        }
+        return true;
+      }
+      //будуємо список файлів
+      __renderFilesList() {
+        var self = this;
+
+        var filesToUpload = self.FilesToUpload;
+
+
+        while (this.filesViewContainer.firstChild) {
+          this.filesViewContainer.removeChild(this.filesViewContainer.firstChild);
+        }
+
+        var ul = document.createElement('ul');
+        ul.classList.add('list-group');
+
+        for (let file of filesToUpload) {
+          console.log(file);
+          var li = document.createElement('li');
+          li.id = self.dropArea.id + '-file-' + file.id;
+          li.classList.add('list-group-item');
+          //li.classList.add('d-flex');
+          li.classList.add('justify-content-between');
+          li.classList.add('align-items-center');
+
+          var caption = document.createElement('div');
+          caption.innerHTML = `<strong>${file.file.name}</strong>`;
+
+          var removeBtn = document.createElement('a');
+          removeBtn.classList.add('text-danger');
+          removeBtn.classList.add('mr-2');
+          removeBtn.href = 'javascript:;';
+          removeBtn.innerHTML = ' <i class="nav-icon i-Close-Window font-weight-bold"></i>';
+          removeBtn.setAttribute('title', 'Видали файл зі списку завантажень');
+
+          li.appendChild(caption);
+
+          if (file.uploadStatus == 'new') {
+            removeBtn.addEventListener('click', function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+              self.__removeByName(file.file.name);
+            });
+
+            caption.appendChild(removeBtn);
+          }
+
+          li.appendChild(document.createElement('br'));
+
+          let commentContainer = document.createElement('div');
+          commentContainer.classList.add('input-group');
+          commentContainer.classList.add('mb-3');
+          commentContainer.innerHTML = `<label for="picker2">Підпис до документу</label>`;
+
+
+          let commentInput = document.createElement('input');
+          commentInput.setAttribute('type', 'text');
+          commentInput.classList.add('form-control');
+          commentInput.setAttribute('placeholder', 'Підпис/коментар/пояснення до файлу');
+          commentContainer.appendChild(commentInput);
+          commentInput.id = `${li.id}-comment`
+          commentInput.value = file.comment;
+          li.appendChild(commentContainer);
+
+
+          li.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+          });
+
+          ul.appendChild(li);
+        }
+
+        this.filesViewContainer.appendChild(ul);
+
+        if (this.FilesToUpload.length > 0) {
+          this.uploadBtn.style.display = 'block';
+        } else {
+          this.uploadBtn.style.display = 'none';
+        }
+      }
+      //видалити файл за іменем
+      __removeByName(fileName) {
+        var newArray = [];
+
+        for (let file of this.files) {
+          if (file.file.name.toLowerCase() != fileName.toLowerCase()) {
+            newArray.push(file);
+          }
+        }
+        this.files = newArray;
+
+        this.__renderFilesList();
+      }
+      //перевірити чи файл вже у списку
+      isExist(fileName) {
+        for (let file of this.files) {
+          if (file.file.name.toLowerCase() == fileName.toLowerCase()) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+      //отримати список файлів для завантаження
+      get FilesToUpload() {
+        var self = this;
+        var resultArray = [];
+
+        for (let file of this.files) {
+          if (file.uploadStatus == 'new') {
+
+            var commentValue = document.getElementById(`${self.dropArea.id}-file-${file.id}-comment`);
+            if (commentValue != null) {
+              file.comment = commentValue.value;
+            }
+            resultArray.push(file);
+          }
+        }
+
+        return resultArray;
+      }
+    }
+
+    class Files {
+      constructor() {
+        this.fileUploader = new DropFile('single-file-upload', {
+          caption: 'Клікніть або перетяніть сюди файл чи фотографію',
+          maxCount: 5,
+          upload: {
+            url: `/file/${globalSettings.userKey}/${globalSettings.publicKey}/files/upload`,
+            onSuccess: function () {
+              alert('Завантежено усі файли');
+              filesInfo.Reload();
+            },
+            onError: function () {
+              alert('Нам не вдалося завантажити усі підкріплені файли');
+            },
+            uploadAs: 'blob'
+          }
+        });
+      }
+    }
+
+    let files = new Files();
+  </script>
+</body>
+
+</html>
