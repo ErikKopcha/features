@@ -1,3 +1,23 @@
+html {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+* {
+  box-sizing: inherit;
+}
+*:before, *:after {
+  box-sizing: inherit;
+}
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+body .checkbox {
+  margin: 0 24px;
+}
+
 .checkbox {
   --border: #bbbbc1;
   --border-hover: #9898a3;
@@ -69,23 +89,4 @@
   100% {
     stroke-dashoffset: 4.5px;
  }
-}
-html {
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-}
-* {
-  box-sizing: inherit;
-}
-*:before, *:after {
-  box-sizing: inherit;
-}
-body {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-body .checkbox {
-  margin: 0 24px;
 }
