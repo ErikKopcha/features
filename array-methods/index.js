@@ -48,3 +48,61 @@ const flat = dataReduce.reduce((prev, item) => {
 
 flat.sort();
 console.log(flat);
+
+// index of, поиск значений в массиве
+const a = [0,9,5,3,5];
+a.indexOf(4); // -1
+a.indexOf(5); // 2
+if (a.indexOf(5) !== -1) { 
+    // yes 
+} else { 
+    // no 
+}
+
+const b = ['Hi', 'hello'];
+b.indexOf('Hi'); // 0
+b.indexOf('Hello'); // -1
+
+// includes
+const incl = [1,2,3,4];
+incl.includes(5); // false
+incl.includes(2); // true
+
+// push
+let psh = [1,3,2];
+psh.push(12); //  [1,3,2,12]
+
+// pop
+let pp = [1,3,2,4,2];
+pp.pop(); // [1,3,2,4,2] 
+
+// shift
+let sft = [13,2,3];
+let sftB = a.shift(); // 13
+
+// unshift
+let unsf = [1,32,11];
+let unsfB = unsf.unshift(22); // [22,1,32,11]
+
+// slice
+let slc = [1,3,2,5,1,1,1];
+let slcB = slc.slice(3); // [5,1,1,1]
+
+// filter
+let fltr = [1,3,2,5,61,12,5412,5,12];
+let fltrB = fltr.filter(el => { // > 5
+    if (el > 5) {
+        return true;
+    }
+});
+
+// concat
+let cnc1 = [1,3,4];
+let cnc2 = [1,2,3];
+let cnct = cnc1.concat(cnc2); // [1,3,4,1,2,3]
+
+// every
+eve = [3,2,5,1];
+let eveB = eve.every(item => {
+    if (item > 3) return true; // false, если все числа > 3
+});
